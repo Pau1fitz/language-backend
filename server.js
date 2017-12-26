@@ -30,11 +30,11 @@ wss.on('connection', function connection(ws, req) {
 	// Get messages once
 	messagesRef.once('value', function(snapshot) {
 		snapshot.forEach(function(childSnapshot) {
-			const childData = childSnapshot.val();
+			const data = childSnapshot.val();
 			let message = JSON.stringify({
-				message: childData.message,
-				user: childData.user,
-				photo: childData.photo
+				message: data.message,
+				user: data.user,
+				photo: data.photo
 			});
 			ws.send(message);
 		});
@@ -57,7 +57,7 @@ wss.on('connection', function connection(ws, req) {
 			user: parsedMsg.user,
 			photo: parsedMsg.photo
 		});
-		
+
 		clients.forEach(client => {
 			client.send(message);
 		});
