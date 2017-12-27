@@ -24,6 +24,8 @@ const database = firebase.database();
 
 wss.on('connection', function connection(ws, req) {
 
+	console.log('device connected')
+
 	// Get ref messages db
 	const messagesRef = database.ref('messages');
 
