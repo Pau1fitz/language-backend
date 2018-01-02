@@ -37,7 +37,7 @@ wss.on('connection', function connection(ws, req) {
 
 		console.log(msg)
 
-		// const parsedMsg = JSON.parse(msg);
+		const parsedMsg = JSON.parse(msg);
     //
 		// // should include { messageId, createdAt, text, senderId }
     //
