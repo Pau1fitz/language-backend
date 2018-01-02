@@ -30,39 +30,84 @@ wss.on('connection', function connection(ws, req) {
 	const messagesRef = database.ref('messages');
 
 	// Get messages once
-	messagesRef.once('value', function(snapshot) {
-		snapshot.forEach(function(childSnapshot) {
-			const data = childSnapshot.val();
-			let message = JSON.stringify({
-				message: data.message,
-				user: data.user,
-				photo: data.photo
-			});
-			ws.send(message);
-		});
-	});
+	// messagesRef.once('value', function(snapshot) {
+	// 	snapshot.forEach(function(childSnapshot) {
+	// 		const data = childSnapshot.val();
+  //
+	// 		let message = JSON.stringify({
+	// 			_id: data._id,
+	// 			text: data.text,
+	// 			createdAt: data.createdAt,
+	// 			user: {
+	// 				_id: data.user._id,
+	// 				name: data.user.name,
+	// 				avatar: data.user.avatar,
+	// 			}
+	// 		});
+	// 		ws.send(message);
+	// 	});
+	// });
 
 	ws.on('message', function incoming(msg) {
 		const parsedMsg = JSON.parse(msg);
-		const clients = wss.clients;
-		const newMsgRef = firebase.database().ref('messages').push();
-		msg.id = newMsgRef.key;
 
-		newMsgRef.set({
-			message: parsedMsg.message,
-			user: parsedMsg.user,
-			photo: parsedMsg.photo
-		});
 
-		let message = JSON.stringify({
-			message: parsedMsg.message,
-			user: parsedMsg.user,
-			photo: parsedMsg.photo
-		});
 
-		clients.forEach(client => {
-			client.send(message);
-		});
+		if(parsedMsg.userId) {
+
+			const messagesRef = database.ref('messages');
+
+			messagesRef.child(parsedMsg.userId).child(parsedMsg.otherUserId).once('value', function(snapshot) {
+				snapshot.forEach(function(childSnapshot) {
+					const data = childSnapshot.val();
+					
+					let message = JSON.stringify({
+						_id: data._id,
+						text: data.text,
+						createdAt: data.createdAt,
+						user: {
+							_id: data.user._id,
+							name: data.user.name,
+							avatar: data.user.avatar,
+						}
+					});
+					ws.send(message);
+				});
+			});
+
+		} else {
+			const clients = wss.clients;
+			const newMsgRef = firebase.database().ref('messages');
+
+			newMsgRef.child(parsedMsg.user._id).child(parsedMsg.otherUserId).push({
+				_id: parsedMsg._id,
+	 			text: parsedMsg.text,
+	 			createdAt: parsedMsg.createdAt,
+	 			user: {
+	 				_id: parsedMsg.user._id,
+	 				name: parsedMsg.user.name,
+	 				avatar: parsedMsg.user.avatar,
+	 			}
+			});
+
+
+			let message = JSON.stringify({
+				_id: parsedMsg._id,
+				text: parsedMsg.text,
+				createdAt: parsedMsg.createdAt,
+				user: {
+					_id: parsedMsg.user._id,
+					name: parsedMsg.user.name,
+					avatar: parsedMsg.user.avatar,
+				}
+			});
+
+			clients.forEach(client => {
+				client.send(message);
+			});
+
+		}
+
   });
 });
 
