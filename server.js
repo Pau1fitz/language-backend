@@ -39,7 +39,16 @@ wss.on('connection', function connection(ws, req) {
 
 		const parsedMsg = JSON.parse(msg);
 
-		// should include { messageId, createdAt, text, senderId }
+		/* should include { messageId, createdAt, text, senderId }
+
+		newMsgRef.child(parsedMsg.user._id).child(parsedMsg.otherUserId).push({
+			_id: parsedMsg._id,
+			text: parsedMsg.text,
+			createdAt: parsedMsg.createdAt,
+			senderId: parsedMsg.sender
+		});
+
+		*/
 
 		const clients = wss.clients;
 		const newMsgRef = firebase.database().ref('messages');
