@@ -19,28 +19,28 @@ const config = {
 };
 
 firebase.initializeApp(config);
+
 // Get a reference to the database service
 const database = firebase.database();
 
 wss.on('connection', function connection(ws, req) {
-
 
 	console.log('device connected');
 
 	// assign a user an id when they connect to the websocket
 	ws.id = Date.now();
 
-	// Get ref messages db
 	const messagesRef = database.ref('messages');
 
+	// when a message is sent send it to both users
 	ws.on('message', function incoming(msg) {
 
 		console.log(msg)
 
 		const parsedMsg = JSON.parse(msg);
-    //
-		// // should include { messageId, createdAt, text, senderId }
-    //
+
+		// should include { messageId, createdAt, text, senderId }
+
 		const clients = wss.clients;
 		const newMsgRef = firebase.database().ref('messages');
 
@@ -73,7 +73,11 @@ wss.on('connection', function connection(ws, req) {
 		});
 
   });
+
 });
+
+
+// Get messages between two users
 
 app.get('/messages/:userId/:otherUserId', function(req, res) {
 
@@ -89,6 +93,7 @@ app.get('/messages/:userId/:otherUserId', function(req, res) {
 		});
 
 		res.json(messages);
+
 	});
 
 });
