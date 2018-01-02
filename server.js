@@ -29,26 +29,8 @@ wss.on('connection', function connection(ws, req) {
 	// Get ref messages db
 	const messagesRef = database.ref('messages');
 
-	// Get messages once
-	// messagesRef.once('value', function(snapshot) {
-	// 	snapshot.forEach(function(childSnapshot) {
-	// 		const data = childSnapshot.val();
-  //
-	// 		let message = JSON.stringify({
-	// 			_id: data._id,
-	// 			text: data.text,
-	// 			createdAt: data.createdAt,
-	// 			user: {
-	// 				_id: data.user._id,
-	// 				name: data.user.name,
-	// 				avatar: data.user.avatar,
-	// 			}
-	// 		});
-	// 		ws.send(message);
-	// 	});
-	// });
-
 	ws.on('message', function incoming(msg) {
+
 		const parsedMsg = JSON.parse(msg);
 
 		if(parsedMsg.userId) {
@@ -74,6 +56,7 @@ wss.on('connection', function connection(ws, req) {
 			});
 
 		} else {
+
 			const clients = wss.clients;
 			const newMsgRef = firebase.database().ref('messages');
 
