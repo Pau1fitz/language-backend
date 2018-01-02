@@ -51,8 +51,6 @@ wss.on('connection', function connection(ws, req) {
 	ws.on('message', function incoming(msg) {
 		const parsedMsg = JSON.parse(msg);
 
-
-
 		if(parsedMsg.userId) {
 
 			const messagesRef = database.ref('messages');
@@ -60,7 +58,7 @@ wss.on('connection', function connection(ws, req) {
 			messagesRef.child(parsedMsg.userId).child(parsedMsg.otherUserId).once('value', function(snapshot) {
 				snapshot.forEach(function(childSnapshot) {
 					const data = childSnapshot.val();
-					
+
 					let message = JSON.stringify({
 						_id: data._id,
 						text: data.text,
@@ -90,7 +88,6 @@ wss.on('connection', function connection(ws, req) {
 	 			}
 			});
 
-
 			let message = JSON.stringify({
 				_id: parsedMsg._id,
 				text: parsedMsg.text,
@@ -109,6 +106,24 @@ wss.on('connection', function connection(ws, req) {
 		}
 
   });
+});
+
+app.get('/messages/:userId/:otherUserId', function(req, res) {
+
+	const messagesRef = database.ref('messages');
+
+	messagesRef.child(req.params.userId).child(req.params.otherUserId).once('value', function(snapshot) {
+
+		const messages = [];
+
+		snapshot.forEach(function(childSnapshot) {
+			const data = childSnapshot.val();
+			messages.push(data);
+		});
+
+		res.json(messages);
+	});
+
 });
 
 server.listen(3000, function listening() {
